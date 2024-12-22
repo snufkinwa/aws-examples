@@ -1,0 +1,65 @@
+tasks:
+  - name: utils
+    before: |
+      sudo apt-get install tree
+      
+# https://learn.microsoft.com/en-us/powershell/scripting/install/install-ubuntu?view=powershell-7.4
+  - name: powershell-7.4
+    before: |
+      #Update package lists
+      sudo apt-get update
+
+      # Install prerequisites
+      sudo apt-get install -y wget apt-transport-https software-properties-common
+
+      # Import the Microsoft GPG key
+      wget -q "https://packages.microsoft.com/keys/microsoft.asc" -O- | sudo apt-key add -
+
+      # Register the Microsoft Ubuntu repository
+      sudo add-apt-repository "$(wget -qO- https://packages.microsoft.com/config/ubuntu/20.04/prod.list)"
+
+      # Install PowerShell
+      sudo apt-get update
+      sudo apt-get install -y powershell
+
+      pwsh -Command "
+        Write-Host 'Installing AWS Tools for PowerShell...';
+        Install-Module -Name AWSPowerShell.NetCore -Scope CurrentUser -Force -AllowClobber;
+        Import-Module AWSPowerShell.NetCore;
+
+        # Load environment variables and configure AWS
+        if ('$AWS_ACCESS_KEY_ID' -and '$AWS_SECRET_ACCESS_KEY' -and '$AWS_DEFAULT_REGION') {
+          Initialize-AWSDefaultConfiguration -AccessKey '$AWS_ACCESS_KEY_ID' -SecretKey '$AWS_SECRET_ACCESS_KEY' -Region '$AWS_DEFAULT_REGION';
+          Write-Host 'AWS PowerShell setup complete.';
+        } else {
+          Write-Host 'Environment variables for AWS are missing. Skipping AWS configuration.';
+        }
+      "
+
+# https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html      
+  - name: aws-cli
+    init: |
+      # Check if the aws folder exists
+      if [ -d "aws" ]; then
+        echo "AWS CLI folder found. Installing directly..."
+        sudo ./aws/install
+      else
+        echo "AWS CLI folder not found. Downloading..."
+        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+        unzip -o awscliv2.zip
+        sudo ./aws/install
+      fi
+
+      # Load environment variables
+      echo "Loading environment variables..."
+      set -a
+      [ -f .env ] && . .env
+      set +a
+
+      # Configure AWS CLI
+      echo "Configuring AWS CLI..."
+      aws configure set aws_access_key_id "$AWS_ACCESS_KEY_ID"
+      aws configure set aws_secret_access_key "$AWS_SECRET_ACCESS_KEY"
+      aws configure set default.region "$AWS_DEFAULT_REGION"
+      aws configure set default.output "json"
+      echo "AWS CLI setup complete!"
