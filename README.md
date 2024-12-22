@@ -2,17 +2,30 @@
 
 Certified Solutions Architect Associate 
 
-## S3/bash-scripts - Running Scripts
 
-Make sure to be able to run scripts! `chmod u+x *.sh`
+## AWS S3 Bash Scripts Guide
 
- - `./generate_files.sh`
- - `./create_bucket.sh <bucket-name> <REGION>`
- - `./sync_files.sh <bucket-name> files`
- - `./list_objects.sh <bucket-name>`
- - `./delete_bucket.sh <bucket-name>`
- - `./get_newest_bucket.sh`
- - `./list_buckets.sh`
+### Prerequisites
+- AWS CLI installed and configured
+- Execute permissions on scripts: `chmod u+x *.sh`
+
+### Available Scripts
+
+Script | Description | Usage
+---|---|---
+`generate_files.sh` | Creates sample files for testing | `./generate_files.sh`
+`create_bucket.sh` | Creates new S3 bucket | `./create_bucket.sh <bucket-name> <region>`
+`sync_files.sh` | Syncs local files to bucket | `./sync_files.sh <bucket-name> <directory>`
+`list_objects.sh` | Lists bucket contents | `./list_objects.sh <bucket-name>`
+`delete_bucket.sh` | Deletes bucket and contents | `./delete_bucket.sh <bucket-name>`
+`get_newest_bucket.sh` | Shows most recently created bucket | `./get_newest_bucket.sh`
+`list_buckets.sh` | Lists all S3 buckets | `./list_buckets.sh`
+
+Parameters:
+- `<bucket-name>`: Target S3 bucket name
+- `<region>`: AWS region (e.g., us-east-1)
+- `<directory>`: Local directory to sync
+
 
  ## Powershell
 
